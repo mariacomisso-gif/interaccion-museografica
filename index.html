@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Letreros de Oro - Experiencia Interactiva</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    html, body {
+      margin: 0; padding: 0;
+      background-color: #ffffff;
+      color: #000000;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh; overflow: hidden;
+    }
+
+    #pantalla-inicio {
+      background-color: transparent;
+      padding: 0;
+      text-align: center;
+      max-width: 550px;
+      width: 100%;
+    }
+    
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      margin-top: 0;
+      margin-bottom: 40px;
+      color: #000000;
+    }
+    
+    .grupo-form { 
+      margin-bottom: 25px; 
+      text-align: left; 
+    }
+    
+    label { 
+      display: block; 
+      margin-bottom: 10px; 
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600; 
+      color: #666666; 
+    }
+    
+    input[type="text"], select {
+      width: 100%; padding: 16px; box-sizing: border-box;
+      background-color: #f5f5f7;
+      border: 1px solid transparent; 
+      color: #000000;
+      font-size: 1rem; 
+      font-family: 'Inter', sans-serif;
+      border-radius: 12px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus, select:focus {
+      border-color: #000000;
+      background-color: #ffffff;
+    }
+
+    .contenedor-ornamentos {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-ornamento {
+      background-color: #ffffff; 
+      border: 1px solid #e5e5e5; 
+      color: #000000;
+      font-size: 24px; 
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; justify-content: center; align-items: center;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-ornamento:hover { 
+      border-color: #000000; 
+      background-color: #fafafa;
+      transform: translateY(-2px);
+    }
+
+    .btn-principal {
+      background-color: #000000;
+      color: #ffffff;
+      font-size: 1.1rem; 
+      font-weight: 600; 
+      padding: 16px 40px;
+      border: none; 
+      border-radius: 50px;
+      cursor: pointer;
+      margin-top: 20px; 
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .btn-principal:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    #pantalla-interactiva { 
+      display: none; 
+      position: relative; 
+      margin-top: 40px; 
+    }
+    
+    canvas { 
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    }
+    
+    .btn-flotante {
+      position: absolute; top: -60px;
+      padding: 12px 24px; border-radius: 50px; cursor: pointer;
+      font-weight: 600; font-size: 0.9rem; border: none; transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .btn-izq { 
+      left: 0; background-color: #ffffff; color: #000000; border: 1px solid #e5e5e5; 
+    }
+    
+    .btn-izq:hover { 
+      border-color: #000000; 
+    }
+    
+    .btn-der { 
+      right: 0; background-color: #000000; color: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .btn-der:hover { 
+      transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); 
+    }
+
+    #titulo-resultado {
+      position: absolute; top: -70px; left: 0; width: 100%;
+      text-align: center; color: #000000; margin: 0; 
+      font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="pantalla-inicio">
+    <h1>Diseña tu Letrero.</h1>
+    
+    <div class="grupo-form">
+      <label>Texto principal</label>
+      <input type="text" id="input-texto" value="LETRERO DE ORO" placeholder="Escribe tu frase...">
+    </div>
+
+    <div class="grupo-form">
+      <label>Estilo tipográfico</label>
+      <select id="select-fuente">
+        <option value="Georgia">Clásica (Georgia)</option>
+        <option value="Goudy Old Style">Elegante (Goudy Old Style)</option>
+        <option value="Edwardian Script ITC">Caligráfica (Edwardian Script)</option>
+        <option value="Impact">Gruesa (Impact)</option>
+      </select>
+    </div>
+
+    <div class="grupo-form" style="text-align: center; margin-top: 30px;">
+      <label style="text-align: center; margin-bottom: 15px;">Añadir ornamentos</label>
+      <div class="contenedor-ornamentos">
+        <button class="btn-ornamento" onclick="agregarOrnamento('⚜')">⚜</button>
+        <button class="btn-ornamento" onclick="agregarOrnamento('❁')">❁</button>
+        <button class="btn-ornamento" onclick="agregarOrnamento('❈')">❈</button>
+        <button class="btn-ornamento" onclick="agregarOrnamento('❦')">❦</button>
+        <button class="btn-ornamento" onclick="agregarOrnamento('❧')">❧</button>
+      </div>
+    </div>
+
+    <button class="btn-principal" onclick="irAlTaller()">Ir al taller</button>
+  </div>
+
+  <div id="pantalla-interactiva">
+    
+    <div id="ui-taller">
+      <button class="btn-flotante btn-izq" onclick="volverAlMenu()">← Editar</button>
+      <button class="btn-flotante btn-der" onclick="verResultado()">Terminar diseño →</button>
+    </div>
+
+    <div id="ui-resultado" style="display: none;">
+      <button class="btn-flotante btn-izq" onclick="volverAlMenu()">← Nuevo</button>
+      <h2 id="titulo-resultado">Obra finalizada</h2>
+      <button class="btn-flotante btn-der" onclick="descargarImagen()">Descargar JPG ↓</button>
+    </div>
+
+    <div id="contenedor-canvas"></div>
+  </div>
+
+  <script>
+    let estadoApp = "inicio";
+    let fuenteActual = "Georgia";
+    let elementos = []; 
+    let elementoArrastrado = null;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    function irAlTaller() {
+      estadoApp = "taller";
+      fuenteActual = document.getElementById('select-fuente').value;
+      let textoCompleto = document.getElementById('input-texto').value.trim();
+      
+      elementos = elementos.filter(el => el.tipo !== "principal");
+      let palabras = textoCompleto.split(/\s+/);
+      
+      let espaciadoY = 80; 
+      let startY = 250 - ((palabras.length - 1) * espaciadoY / 2);
+
+      for (let i = 0; i < palabras.length; i++) {
+        if (palabras[i].length > 0) {
+          elementos.push({
+            texto: palabras[i],
+            x: 400, y: startY + (i * espaciadoY), 
+            tamano: 80, tipo: "principal"
+          });
+        }
+      }
+
+      document.getElementById('pantalla-inicio').style.display = 'none';
+      document.getElementById('pantalla-interactiva').style.display = 'block';
+      document.getElementById('ui-taller').style.display = 'block';
+      document.getElementById('ui-resultado').style.display = 'none';
+    }
+
+    function verResultado() {
+      estadoApp = "resultado";
+      elementoArrastrado = null; 
+      document.getElementById('ui-taller').style.display = 'none';
+      document.getElementById('ui-resultado').style.display = 'block';
+    }
+
+    function volverAlMenu() {
+      estadoApp = "inicio";
+      document.getElementById('pantalla-interactiva').style.display = 'none';
+      document.getElementById('pantalla-inicio').style.display = 'block';
+    }
+
+    function descargarImagen() {
+      saveCanvas('letrero-de-oro', 'jpg');
+    }
+
+    function agregarOrnamento(simbolo) {
+      elementos.push({
+        texto: simbolo,
+        x: random(200, 600), y: random(100, 400),
+        tamano: 60, tipo: "ornamento"
+      });
+      console.log("Ornamento " + simbolo + " agregado.");
+    }
+
+    function setup() {
+      let canvas = createCanvas(800, 500);
+      canvas.parent('contenedor-canvas'); 
+      textAlign(CENTER, CENTER);
+    }
+
+    function draw() {
+      if (estadoApp === "inicio") return; 
+
+      background(25, 25, 25); 
+      
+      push();
+      if (estadoApp === "taller") {
+        translate(width, 0); 
+        scale(-1, 1); 
+      }
+      
+      stroke(100); strokeWeight(1); noFill();
+      rect(15, 15, width - 30, height - 30); 
+
+      if (elementoArrastrado && estadoApp === "taller") {
+        let mouseInvertidoX = width - mouseX;
+        elementoArrastrado.x = mouseInvertidoX + offsetX;
+        elementoArrastrado.y = mouseY + offsetY;
+      }
+
+      for (let i = 0; i < elementos.length; i++) {
+        let el = elementos[i];
+        
+        textFont(el.tipo === "principal" ? fuenteActual : "Arial");
+        fill(212, 175, 55); 
+        noStroke();
+        textSize(el.tamano);
+        text(el.texto, el.x, el.y);
+        
+        if (estadoApp === "taller") {
+          let anchoTexto = textWidth(el.texto);
+          let altoTexto = el.tamano * 1.2; 
+          let mouseInvertidoX = width - mouseX;
+          
+          if (mouseInvertidoX > el.x - anchoTexto/2 - 20 && mouseInvertidoX < el.x + anchoTexto/2 + 20 && 
+              mouseY > el.y - altoTexto/2 - 20 && mouseY < el.y + altoTexto/2 + 20) {
+            stroke(255, 255, 255, 60); 
+            strokeWeight(1);
+            noFill();
+            rect(el.x - anchoTexto/2 - 10, el.y - el.tamano/2 - 10, anchoTexto + 20, el.tamano + 20);
+          }
+        }
+      }
+      pop();
+    }
+
+    function mousePressed() {
+      if (estadoApp !== "taller") return; 
+
+      let mouseInvertidoX = width - mouseX;
+      
+      for (let i = elementos.length - 1; i >= 0; i--) {
+        let el = elementos[i];
+        textFont(el.tipo === "principal" ? fuenteActual : "Arial");
+        let anchoTexto = textWidth(el.texto);
+        let altoTexto = el.tamano * 1.2;
+        
+        if (mouseInvertidoX > el.x - anchoTexto/2 - 20 && mouseInvertidoX < el.x + anchoTexto/2 + 20 && 
+            mouseY > el.y - altoTexto/2 - 20 && mouseY < el.y + altoTexto/2 + 20) {
+          
+          elementoArrastrado = el;
+          offsetX = el.x - mouseInvertidoX;
+          offsetY = el.y - mouseY;
+          break; 
+        }
+      }
+    }
+
+    function mouseReleased() {
+      elementoArrastrado = null;
+    }
+  </script>
+</body>
+</html>
